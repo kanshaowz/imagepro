@@ -60,6 +60,10 @@
     --transition-normal: 0.25s ease;
     --transition-slow: 0.35s ease;
     
+    /* Animation */
+    --bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    --smooth: cubic-bezier(0.4, 0, 0.2, 1);
+    
     /* Sidebar */
     --sidebar-width: 260px;
     --sidebar-collapsed: 60px;
@@ -83,6 +87,43 @@ body {
     min-height: 100vh;
     line-height: 1.5;
     overflow-x: hidden;
+    background-image: 
+        radial-gradient(ellipse at 20% 20%, rgba(168, 85, 247, 0.08) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 80%, rgba(236, 72, 153, 0.06) 0%, transparent 50%);
+}
+
+/* Animated Background Orbs */
+.bg-orb {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(100px);
+    opacity: 0.1;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.bg-orb-1 {
+    width: 500px;
+    height: 500px;
+    background: var(--accent-purple);
+    top: -150px;
+    right: -100px;
+    animation: float 25s infinite ease-in-out;
+}
+
+.bg-orb-2 {
+    width: 400px;
+    height: 400px;
+    background: var(--accent-pink);
+    bottom: -100px;
+    left: -100px;
+    animation: float 20s infinite ease-in-out reverse;
+}
+
+@keyframes float {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33% { transform: translate(30px, -30px) scale(1.05); }
+    66% { transform: translate(-20px, 20px) scale(0.95); }
 }
 
 /* Language Selector */
@@ -240,12 +281,18 @@ body {
 .nav-item:hover {
     background: var(--bg-hover);
     color: var(--text-primary);
+    transform: translateX(4px);
 }
 
 .nav-item.active {
     background: linear-gradient(135deg, rgba(168, 85, 247, 0.2), rgba(236, 72, 153, 0.1));
     color: var(--accent-purple-light);
     border: 1px solid rgba(168, 85, 247, 0.3);
+    box-shadow: 0 0 15px rgba(168, 85, 247, 0.2);
+}
+
+.nav-item.active:hover {
+    transform: translateX(0);
 }
 
 .nav-item i {
@@ -396,6 +443,59 @@ body {
 
 .btn-danger:hover {
     background: rgba(239, 68, 68, 0.2);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+/* Button Ripple Effect */
+.btn {
+    position: relative;
+    overflow: hidden;
+}
+
+.btn::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.2), transparent);
+    opacity: 0;
+    transition: opacity var(--transition-fast);
+}
+
+.btn:hover::after {
+    opacity: 1;
+}
+
+.btn:active {
+    transform: translateY(0) scale(0.98);
+}
+
+/* Loading Spinner */
+.spinner {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Skeleton Loading */
+.skeleton {
+    background: linear-gradient(90deg, var(--bg-card) 25%, var(--bg-hover) 50%, var(--bg-card) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: var(--radius-md);
+}
+
+@keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
 }
 
 .btn-full {
@@ -1436,4 +1536,52 @@ select.input-field {
 ::selection {
     background: rgba(168, 85, 247, 0.3);
     color: var(--text-primary);
+}
+
+/* App Footer */
+.app-footer {
+    background: var(--bg-secondary);
+    border-top: 1px solid rgba(168, 85, 247, 0.1);
+    padding: 20px;
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 14px;
+}
+
+.app-footer p {
+    background: linear-gradient(135deg, var(--text-secondary), var(--accent-purple-light));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Focus Visible */
+:focus-visible {
+    outline: 2px solid var(--accent-purple);
+    outline-offset: 2px;
+}
+
+/* Image Preview Enhancements */
+.canvas-container img {
+    transition: all var(--transition-normal);
+}
+
+.canvas-container img:hover {
+    box-shadow: var(--shadow-glow);
+}
+
+/* Upload Zone Enhancements */
+.upload-zone {
+    transition: all var(--transition-normal);
+}
+
+.upload-zone:hover {
+    border-color: var(--accent-purple);
+    transform: scale(1.01);
+}
+
+.upload-zone.dragover {
+    background: rgba(168, 85, 247, 0.1);
+    border-color: var(--accent-purple);
+    transform: scale(1.02);
 }
