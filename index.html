@@ -3,48 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title id="page-title">ImagePro - Free Online Image Converter</title>
-    <meta name="description" content="Free online image converter. Convert JPG, PNG, WebP, GIF. Resize, compress, and edit images in your browser.">
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        :root { --bg: #0f172a; --bg2: #1e293b; --card: #334155; --text: #f8fafc; --text2: #94a3b8; --accent: #3b82f6; --success: #10b981; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
-        .lang { position: fixed; top: 15px; right: 15px; z-index: 1000; }
-        .lang-btn { background: var(--card); border: 1px solid rgba(255,255,255,0.1); color: var(--text); padding: 8px 14px; border-radius: 20px; cursor: pointer; font-size: 0.85rem; }
-        .lang-dropdown { position: absolute; top: 100%; right: 0; margin-top: 8px; background: var(--card); border-radius: 12px; display: none; min-width: 140px; overflow: hidden; }
-        .lang-dropdown.show { display: block; }
-        .lang-option { padding: 10px 14px; cursor: pointer; font-size: 0.9rem; }
-        .lang-option:hover { background: var(--bg2); }
-        .header { text-align: center; padding: 40px 20px; background: var(--bg2); }
-        .header h1 { font-size: 2.5rem; background: linear-gradient(135deg, var(--accent), #8b5cf6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 10px; }
-        .header p { color: var(--text2); }
-        .container { max-width: 900px; margin: 0 auto; padding: 30px 20px; }
-        .tool-card { background: var(--bg2); border-radius: 16px; padding: 30px; margin-bottom: 20px; }
-        .tool-title { font-size: 1.5rem; margin-bottom: 10px; }
-        .tool-desc { color: var(--text2); margin-bottom: 25px; }
-        .upload-area { border: 3px dashed rgba(255,255,255,0.2); border-radius: 16px; padding: 60px 20px; text-align: center; cursor: pointer; transition: all 0.3s; }
-        .upload-area:hover { border-color: var(--accent); background: rgba(59,130,246,0.05); }
-        .upload-area.dragover { border-color: var(--accent); background: rgba(59,130,246,0.1); }
-        .btn { padding: 12px 24px; border: none; border-radius: 10px; cursor: pointer; font-weight: 600; transition: all 0.3s; margin: 5px; }
-        .btn-primary { background: var(--accent); color: white; }
-        .btn-secondary { background: var(--card); color: var(--text); border: 2px solid rgba(255,255,255,0.1); }
-        .input-group { margin: 15px 0; }
-        .input-label { display: block; margin-bottom: 8px; color: var(--text2); font-size: 0.9rem; }
-        .input-field { width: 100%; background: var(--card); border: 2px solid transparent; border-radius: 10px; padding: 12px; color: var(--text); }
-        .input-field:focus { outline: none; border-color: var(--accent); }
-        select.input-field { cursor: pointer; }
-        .preview-img { max-width: 100%; max-height: 400px; border-radius: 10px; margin: 20px 0; }
-        .result-box { background: var(--card); padding: 20px; border-radius: 12px; margin-top: 20px; display: none; }
-        .result-box.show { display: block; }
-        .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--success); color: white; padding: 12px 24px; border-radius: 25px; opacity: 0; transition: all 0.3s; z-index: 1000; }
-        .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        @media (max-width: 600px) { .grid-2 { grid-template-columns: 1fr; } .header h1 { font-size: 1.8rem; } }
-    </style>
+    <title>ImagePro - Professional Online Image Editor</title>
+    <meta name="description" content="Professional online image editor with filters, adjustments, batch processing. Supports JPG, PNG, WebP, GIF, HEIC, TIFF.">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <div class="lang">
-        <button class="lang-btn" onclick="toggleLang()"><span id="flag">🇺🇸</span> <span id="langName">English</span> ▼</button>
+    <!-- Language Selector -->
+    <div class="lang-selector">
+        <button class="lang-btn" onclick="toggleLang()">
+            <span id="current-flag">🇺🇸</span> <span id="current-lang">English</span> <i class="fas fa-chevron-down"></i>
+        </button>
         <div class="lang-dropdown" id="langDropdown">
             <div class="lang-option" onclick="setLang('en')">🇺🇸 English</div>
             <div class="lang-option" onclick="setLang('zh')">🇨🇳 中文</div>
@@ -54,204 +23,572 @@
         </div>
     </div>
 
-    <header class="header">
-        <h1 data-i18n="title">🖼️ ImagePro</h1>
-        <p data-i18n="subtitle">Free Online Image Converter & Editor</p>
-    </header>
-
-    <div class="container">
-        <!-- Upload -->
-        <div class="tool-card">
-            <h2 class="tool-title" data-i18n="uploadTitle">Upload Image</h2>
-            <p class="tool-desc" data-i18n="uploadDesc">Support JPG, PNG, WebP, GIF. Max 10MB.</p>
+    <!-- Main App Container -->
+    <div class="app-container">
+        <!-- Left Sidebar - Tools -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <i class="fas fa-layer-group"></i>
+                    <span data-i18n="appName">ImagePro</span>
+                </div>
+            </div>
             
-            <div class="upload-area" id="dropZone" onclick="document.getElementById('fileInput').click()">
-                <p style="font-size: 3rem">📤</p>
-                <p data-i18n="dropText">Click or drag image here</p>
-                <input type="file" id="fileInput" accept="image/*" style="display:none" onchange="handleFile(event)">
-            </div>
-        </div>
-
-        <!-- Editor -->
-        <div class="tool-card" id="editorCard" style="display:none">
-            <h2 class="tool-title" data-i18n="editTitle">Edit Image</h2>
-            
-            <div style="text-align:center">
-                <img id="preview" class="preview-img">
-            </div>
-
-            <div class="grid-2">
-                <div class="input-group">
-                    <label class="input-label" data-i18n="format">Output Format</label>
-                    <select class="input-field" id="format">
-                        <option value="image/jpeg">JPG</option>
-                        <option value="image/png">PNG</option>
-                        <option value="image/webp">WebP</option>
-                    </select>
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <div class="nav-title" data-i18n="upload">📤 Upload</div>
+                    <button class="nav-item active" onclick="switchTab('upload')" data-tab="upload">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <span data-i18n="uploadImages">Upload Images</span>
+                    </button>
+                    <button class="nav-item" onclick="switchTab('batch')" data-tab="batch">
+                        <i class="fas fa-images"></i>
+                        <span data-i18n="batchProcess">Batch Process</span>
+                    </button>
                 </div>
 
-                <div class="input-group">
-                    <label class="input-label" data-i18n="quality">Quality (%)</label>
-                    <input type="number" class="input-field" id="quality" value="90" min="1" max="100">
+                <div class="nav-section" id="editSection" style="display:none">
+                    <div class="nav-title" data-i18n="edit">✏️ Edit</div>
+                    <button class="nav-item" onclick="switchTab('adjust')" data-tab="adjust">
+                        <i class="fas fa-sliders-h"></i>
+                        <span data-i18n="adjustments">Adjustments</span>
+                    </button>
+                    <button class="nav-item" onclick="switchTab('filters')" data-tab="filters">
+                        <i class="fas fa-magic"></i>
+                        <span data-i18n="filters">Filters</span>
+                    </button>
+                    <button class="nav-item" onclick="switchTab('transform')" data-tab="transform">
+                        <i class="fas fa-crop-alt"></i>
+                        <span data-i18n="transform">Transform</span>
+                    </button>
+                    <button class="nav-item" onclick="switchTab('compress')" data-tab="compress">
+                        <i class="fas fa-compress-arrows-alt"></i>
+                        <span data-i18n="compress">Compress</span>
+                    </button>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-title" data-i18n="export">💾 Export</div>
+                    <button class="nav-item" onclick="switchTab('export')" data-tab="export">
+                        <i class="fas fa-download"></i>
+                        <span data-i18n="download">Download</span>
+                    </button>
+                </div>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="stats" id="imageStats" style="display:none">
+                    <div class="stat-item">
+                        <span class="stat-label" data-i18n="dimensions">Size:</span>
+                        <span class="stat-value" id="statDimensions">-</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label" data-i18n="fileSize">File:</span>
+                        <span class="stat-value" id="statFileSize">-</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label" data-i18n="format">Format:</span>
+                        <span class="stat-value" id="statFormat">-</span>
+                    </div>
                 </div>
             </div>
+        </aside>
 
-            <div class="grid-2">
-                <div class="input-group">
-                    <label class="input-label" data-i18n="width">Width (px)</label>
-                    <input type="number" class="input-field" id="width" placeholder="Auto">
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Top Bar -->
+            <header class="top-bar">
+                <div class="top-bar-left">
+                    <button class="btn-icon" onclick="toggleSidebar()">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <h1 class="page-title" data-i18n="editorTitle">Image Editor</h1>
+                </div>
+                <div class="top-bar-right">
+                    <button class="btn btn-secondary" onclick="resetAll()" id="btnReset" style="display:none">
+                        <i class="fas fa-undo"></i> <span data-i18n="reset">Reset</span>
+                    </button>
+                    <button class="btn btn-primary" onclick="downloadImage()" id="btnDownload" style="display:none">
+                        <i class="fas fa-download"></i> <span data-i18n="download">Download</span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Workspace -->
+            <div class="workspace">
+                <!-- Upload Tab -->
+                <div class="tab-content active" id="tab-upload">
+                    <div class="upload-zone" id="dropZone">
+                        <div class="upload-content">
+                            <i class="fas fa-cloud-upload-alt upload-icon"></i>
+                            <h3 data-i18n="dropTitle">Drop your images here</h3>
+                            <p data-i18n="dropSubtitle">or click to browse</p>
+                            <p class="upload-formats" data-i18n="supportedFormats">
+                                Supports: JPG, PNG, WebP, GIF, HEIC, TIFF (Max 50MB)
+                            </p>
+                            <input type="file" id="fileInput" accept="image/*,.heic,.heif,.tiff,.tif" multiple style="display:none">
+                        </div>
+                    </div>
+                    
+                    <div class="recent-files" id="recentFiles" style="display:none">
+                        <h4 data-i18n="recentFiles">Recent Files</h4>
+                        <div class="file-list" id="fileList"></div>
+                    </div>
                 </div>
 
-                <div class="input-group">
-                    <label class="input-label" data-i18n="height">Height (px)</label>
-                    <input type="number" class="input-field" id="height" placeholder="Auto">
+                <!-- Batch Processing Tab -->
+                <div class="tab-content" id="tab-batch">
+                    <div class="batch-container">
+                        <div class="batch-header">
+                            <h3 data-i18n="batchTitle">Batch Processing</h3>
+                            <div class="batch-actions">
+                                <button class="btn btn-secondary" onclick="addMoreFiles()">
+                                    <i class="fas fa-plus"></i> <span data-i18n="addFiles">Add Files</span>
+                                </button>
+                                <button class="btn btn-danger" onclick="clearBatch()">
+                                    <i class="fas fa-trash"></i> <span data-i18n="clearAll">Clear All</span>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="batch-settings">
+                            <div class="setting-group">
+                                <label data-i18n="batchFormat">Output Format</label>
+                                <select id="batchFormat" class="input-field">
+                                    <option value="original">Keep Original</option>
+                                    <option value="image/jpeg">JPEG</option>
+                                    <option value="image/png">PNG</option>
+                                    <option value="image/webp">WebP</option>
+                                </select>
+                            </div>
+                            <div class="setting-group">
+                                <label data-i18n="batchQuality">Quality</label>
+                                <div class="slider-with-value">
+                                    <input type="range" id="batchQuality" min="1" max="100" value="85" class="slider">
+                                    <span class="slider-value">85%</span>
+                                </div>
+                            </div>
+                            <div class="setting-group">
+                                <label data-i18n="batchResize">Resize</label>
+                                <div class="resize-inputs">
+                                    <input type="number" id="batchWidth" placeholder="Width" class="input-field">
+                                    <span>×</span>
+                                    <input type="number" id="batchHeight" placeholder="Height" class="input-field">
+                                    <label class="checkbox">
+                                        <input type="checkbox" id="batchMaintainRatio" checked>
+                                        <span data-i18n="maintainRatio">Keep ratio</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <button class="btn btn-primary btn-full" onclick="processBatch()">
+                                <i class="fas fa-cogs"></i> <span data-i18n="processAll">Process All</span>
+                            </button>
+                        </div>
+
+                        <div class="batch-files" id="batchFilesList">
+                            <p class="empty-state" data-i18n="noBatchFiles">No files added yet</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Adjustments Tab -->
+                <div class="tab-content" id="tab-adjust">
+                    <div class="adjustments-panel">
+                        <div class="adjustment-group">
+                            <div class="adjustment-header">
+                                <i class="fas fa-sun"></i>
+                                <span data-i18n="brightness">Brightness</span>
+                                <span class="adjustment-value" id="brightnessValue">100%</span>
+                            </div>
+                            <input type="range" id="brightness" min="0" max="200" value="100" class="slider slider-purple">
+                        </div>
+
+                        <div class="adjustment-group">
+                            <div class="adjustment-header">
+                                <i class="fas fa-adjust"></i>
+                                <span data-i18n="contrast">Contrast</span>
+                                <span class="adjustment-value" id="contrastValue">100%</span>
+                            </div>
+                            <input type="range" id="contrast" min="0" max="200" value="100" class="slider slider-purple">
+                        </div>
+
+                        <div class="adjustment-group">
+                            <div class="adjustment-header">
+                                <i class="fas fa-tint"></i>
+                                <span data-i18n="saturation">Saturation</span>
+                                <span class="adjustment-value" id="saturationValue">100%</span>
+                            </div>
+                            <input type="range" id="saturation" min="0" max="200" value="100" class="slider slider-purple">
+                        </div>
+
+                        <div class="adjustment-group">
+                            <div class="adjustment-header">
+                                <i class="fas fa-eye-dropper"></i>
+                                <span data-i18n="hue">Hue Rotate</span>
+                                <span class="adjustment-value" id="hueValue">0°</span>
+                            </div>
+                            <input type="range" id="hue" min="0" max="360" value="0" class="slider slider-purple">
+                        </div>
+
+                        <div class="adjustment-group">
+                            <div class="adjustment-header">
+                                <i class="fas fa-circle-half-stroke"></i>
+                                <span data-i18n="blur">Blur</span>
+                                <span class="adjustment-value" id="blurValue">0px</span>
+                            </div>
+                            <input type="range" id="blur" min="0" max="20" value="0" class="slider slider-purple">
+                        </div>
+
+                        <div class="adjustment-group">
+                            <div class="adjustment-header">
+                                <i class="fas fa-eye"></i>
+                                <span data-i18n="opacity">Opacity</span>
+                                <span class="adjustment-value" id="opacityValue">100%</span>
+                            </div>
+                            <input type="range" id="opacity" min="0" max="100" value="100" class="slider slider-purple">
+                        </div>
+
+                        <div class="adjustment-actions">
+                            <button class="btn btn-secondary" onclick="resetAdjustments()">
+                                <i class="fas fa-undo"></i> <span data-i18n="resetAdjustments">Reset All</span>
+                            </button>
+                            <button class="btn btn-primary" onclick="applyAdjustments()">
+                                <i class="fas fa-check"></i> <span data-i18n="apply">Apply</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Filters Tab -->
+                <div class="tab-content" id="tab-filters">
+                    <div class="filters-panel">
+                        <div class="filter-category">
+                            <h4 data-i18n="popularFilters">Popular Filters</h4>
+                            <div class="filter-grid">
+                                <button class="filter-btn" data-filter="none">
+                                    <div class="filter-preview" style="filter:none"></div>
+                                    <span data-i18n="original">Original</span>
+                                </button>
+                                <button class="filter-btn" data-filter="grayscale">
+                                    <div class="filter-preview" style="filter:grayscale(100%)"></div>
+                                    <span data-i18n="grayscale">Grayscale</span>
+                                </button>
+                                <button class="filter-btn" data-filter="sepia">
+                                    <div class="filter-preview" style="filter:sepia(100%)"></div>
+                                    <span data-i18n="sepia">Sepia</span>
+                                </button>
+                                <button class="filter-btn" data-filter="vintage">
+                                    <div class="filter-preview" style="filter:sepia(50%) contrast(120%) saturate(80%)"></div>
+                                    <span data-i18n="vintage">Vintage</span>
+                                </button>
+                                <button class="filter-btn" data-filter="warm">
+                                    <div class="filter-preview" style="filter:sepia(30%) saturate(140%) hue-rotate(-10deg)"></div>
+                                    <span data-i18n="warm">Warm</span>
+                                </button>
+                                <button class="filter-btn" data-filter="cool">
+                                    <div class="filter-preview" style="filter:saturate(120%) hue-rotate(10deg) brightness(105%)"></div>
+                                    <span data-i18n="cool">Cool</span>
+                                </button>
+                                <button class="filter-btn" data-filter="dramatic">
+                                    <div class="filter-preview" style="filter:contrast(150%) saturate(120%)"></div>
+                                    <span data-i18n="dramatic">Dramatic</span>
+                                </button>
+                                <button class="filter-btn" data-filter="vivid">
+                                    <div class="filter-preview" style="filter:saturate(180%) contrast(110%)"></div>
+                                    <span data-i18n="vivid">Vivid</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="filter-category">
+                            <h4 data-i18n="artisticFilters">Artistic</h4>
+                            <div class="filter-grid">
+                                <button class="filter-btn" data-filter="invert">
+                                    <div class="filter-preview" style="filter:invert(100%)"></div>
+                                    <span data-i18n="invert">Invert</span>
+                                </button>
+                                <button class="filter-btn" data-filter="duotone">
+                                    <div class="filter-preview" style="filter:grayscale(100%) sepia(100%) hue-rotate(220deg) saturate(300%)"></div>
+                                    <span data-i18n="duotone">Duotone</span>
+                                </button>
+                                <button class="filter-btn" data-filter="noir">
+                                    <div class="filter-preview" style="filter:grayscale(100%) contrast(150%) brightness(90%)"></div>
+                                    <span data-i18n="noir">Noir</span>
+                                </button>
+                                <button class="filter-btn" data-filter="cyber">
+                                    <div class="filter-preview" style="filter:hue-rotate(180deg) saturate(200%) contrast(120%)"></div>
+                                    <span data-i18n="cyber">Cyber</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Transform Tab -->
+                <div class="tab-content" id="tab-transform">
+                    <div class="transform-panel">
+                        <div class="transform-section">
+                            <h4 data-i18n="rotate">Rotate</h4>
+                            <div class="transform-buttons">
+                                <button class="btn btn-secondary" onclick="rotateImage(-90)">
+                                    <i class="fas fa-undo"></i> -90°
+                                </button>
+                                <button class="btn btn-secondary" onclick="rotateImage(90)">
+                                    <i class="fas fa-redo"></i> +90°
+                                </button>
+                                <button class="btn btn-secondary" onclick="rotateImage(180)">
+                                    <i class="fas fa-sync-alt"></i> 180°
+                                </button>
+                                <button class="btn btn-secondary" onclick="flipImage('horizontal')">
+                                    <i class="fas fa-arrows-alt-h"></i> <span data-i18n="flipH">Flip H</span>
+                                </button>
+                                <button class="btn btn-secondary" onclick="flipImage('vertical')">
+                                    <i class="fas fa-arrows-alt-v"></i> <span data-i18n="flipV">Flip V</span>
+                                </button>
+                            </div>
+                            <div class="slider-control">
+                                <label data-i18n="customRotate">Custom Rotate</label>
+                                <input type="range" id="rotateSlider" min="-180" max="180" value="0" class="slider slider-purple">
+                                <span class="slider-value" id="rotateValue">0°</span>
+                            </div>
+                        </div>
+
+                        <div class="transform-section">
+                            <h4 data-i18n="crop">Crop</h4>
+                            <div class="crop-presets">
+                                <button class="crop-preset" data-ratio="free">
+                                    <i class="fas fa-crop"></i>
+                                    <span data-i18n="free">Free</span>
+                                </button>
+                                <button class="crop-preset" data-ratio="1:1">
+                                    <div class="crop-icon square"></div>
+                                    <span>1:1</span>
+                                </button>
+                                <button class="crop-preset" data-ratio="4:3">
+                                    <div class="crop-icon four-three"></div>
+                                    <span>4:3</span>
+                                </button>
+                                <button class="crop-preset" data-ratio="16:9">
+                                    <div class="crop-icon sixteen-nine"></div>
+                                    <span>16:9</span>
+                                </button>
+                                <button class="crop-preset" data-ratio="3:4">
+                                    <div class="crop-icon three-four"></div>
+                                    <span>3:4</span>
+                                </button>
+                                <button class="crop-preset" data-ratio="9:16">
+                                    <div class="crop-icon nine-sixteen"></div>
+                                    <span>9:16</span>
+                                </button>
+                            </div>
+                            <div class="crop-dimensions">
+                                <div class="input-group">
+                                    <label data-i18n="width">Width</label>
+                                    <input type="number" id="cropWidth" class="input-field" placeholder="px">
+                                </div>
+                                <div class="input-group">
+                                    <label data-i18n="height">Height</label>
+                                    <input type="number" id="cropHeight" class="input-field" placeholder="px">
+                                </div>
+                            </div>
+                            <button class="btn btn-primary btn-full" onclick="applyCrop()">
+                                <i class="fas fa-check"></i> <span data-i18n="applyCrop">Apply Crop</span>
+                            </button>
+                        </div>
+
+                        <div class="transform-section">
+                            <h4 data-i18n="resize">Resize</h4>
+                            <div class="resize-options">
+                                <div class="input-group">
+                                    <label data-i18n="newWidth">New Width</label>
+                                    <input type="number" id="resizeWidth" class="input-field" placeholder="px">
+                                </div>
+                                <div class="input-group">
+                                    <label data-i18n="newHeight">New Height</label>
+                                    <input type="number" id="resizeHeight" class="input-field" placeholder="px">
+                                </div>
+                                <label class="checkbox">
+                                    <input type="checkbox" id="maintainAspect" checked>
+                                    <span data-i18n="maintainAspect">Maintain aspect ratio</span>
+                                </label>
+                            </div>
+                            <button class="btn btn-primary btn-full" onclick="applyResize()">
+                                <i class="fas fa-expand"></i> <span data-i18n="applyResize">Apply Resize</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Compress Tab -->
+                <div class="tab-content" id="tab-compress">
+                    <div class="compress-panel">
+                        <div class="compress-preview">
+                            <div class="compress-original">
+                                <h4 data-i18n="original">Original</h4>
+                                <div class="compress-image-container">
+                                    <img id="compressOriginalPreview" alt="Original">
+                                </div>
+                                <div class="compress-info">
+                                    <span id="originalSize">-</span>
+                                </div>
+                            </div>
+                            <div class="compress-arrow">
+                                <i class="fas fa-arrow-right"></i>
+                            </div>
+                            <div class="compress-result">
+                                <h4 data-i18n="compressed">Compressed</h4>
+                                <div class="compress-image-container">
+                                    <img id="compressResultPreview" alt="Compressed">
+                                </div>
+                                <div class="compress-info">
+                                    <span id="compressedSize">-</span>
+                                    <span class="compress-savings" id="compressSavings"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="compress-controls">
+                            <div class="quality-slider">
+                                <div class="quality-header">
+                                    <label data-i18n="quality">Quality</label>
+                                    <span class="quality-value" id="qualityValue">85%</span>
+                                </div>
+                                <input type="range" id="qualitySlider" min="1" max="100" value="85" class="slider slider-purple">
+                                <div class="quality-labels">
+                                    <span data-i18n="low">Low</span>
+                                    <span data-i18n="medium">Medium</span>
+                                    <span data-i18n="high">High</span>
+                                    <span data-i18n="best">Best</span>
+                                </div>
+                            </div>
+
+                            <div class="compress-format">
+                                <label data-i18n="outputFormat">Output Format</label>
+                                <select id="compressFormat" class="input-field">
+                                    <option value="original">Keep Original</option>
+                                    <option value="image/jpeg">JPEG</option>
+                                    <option value="image/png">PNG</option>
+                                    <option value="image/webp">WebP</option>
+                                </select>
+                            </div>
+
+                            <button class="btn btn-primary btn-full" onclick="applyCompression()">
+                                <i class="fas fa-compress"></i> <span data-i18n="compressImage">Compress Image</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Export Tab -->
+                <div class="tab-content" id="tab-export">
+                    <div class="export-panel">
+                        <div class="export-preview">
+                            <h4 data-i18n="preview">Preview</h4>
+                            <div class="export-image-container">
+                                <img id="exportPreview" alt="Export Preview">
+                            </div>
+                        </div>
+
+                        <div class="export-options">
+                            <div class="export-setting">
+                                <label data-i18n="filename">Filename</label>
+                                <input type="text" id="exportFilename" class="input-field" placeholder="imagepro-export">
+                            </div>
+
+                            <div class="export-setting">
+                                <label data-i18n="exportFormat">Format</label>
+                                <select id="exportFormat" class="input-field">
+                                    <option value="image/jpeg">JPEG (.jpg)</option>
+                                    <option value="image/png">PNG (.png)</option>
+                                    <option value="image/webp">WebP (.webp)</option>
+                                </select>
+                            </div>
+
+                            <div class="export-setting">
+                                <label data-i18n="exportQuality">Quality</label>
+                                <div class="slider-with-value">
+                                    <input type="range" id="exportQuality" min="1" max="100" value="95" class="slider slider-purple">
+                                    <span class="slider-value">95%</span>
+                                </div>
+                            </div>
+
+                            <div class="export-info">
+                                <div class="info-row">
+                                    <span data-i18n="dimensions">Dimensions:</span>
+                                    <span id="exportDimensions">-</span>
+                                </div>
+                                <div class="info-row">
+                                    <span data-i18n="estimatedSize">Estimated Size:</span>
+                                    <span id="exportSize">-</span>
+                                </div>
+                            </div>
+
+                            <button class="btn btn-primary btn-full btn-large" onclick="downloadFinal()">
+                                <i class="fas fa-download"></i> <span data-i18n="downloadImage">Download Image</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Image Canvas Area -->
+                <div class="canvas-area" id="canvasArea" style="display:none">
+                    <div class="canvas-toolbar">
+                        <button class="toolbar-btn" onclick="toggleCompare()" id="compareBtn">
+                            <i class="fas fa-columns"></i> <span data-i18n="compare">Compare</span>
+                        </button>
+                        <button class="toolbar-btn" onclick="zoomImage(0.1)">
+                            <i class="fas fa-search-plus"></i>
+                        </button>
+                        <button class="toolbar-btn" onclick="zoomImage(-0.1)">
+                            <i class="fas fa-search-minus"></i>
+                        </button>
+                        <button class="toolbar-btn" onclick="resetZoom()">
+                            <i class="fas fa-expand"></i> <span data-i18n="fit">Fit</span>
+                        </button>
+                        <span class="zoom-level" id="zoomLevel">100%</span>
+                    </div>
+                    
+                    <div class="canvas-container" id="canvasContainer">
+                        <div class="compare-container" id="compareContainer">
+                            <div class="image-wrapper original-wrapper">
+                                <span class="image-label" data-i18n="before">Before</span>
+                                <img id="canvasOriginal" alt="Original">
+                            </div>
+                            <div class="image-wrapper edited-wrapper">
+                                <span class="image-label" data-i18n="after">After</span>
+                                <img id="canvasEdited" alt="Edited">
+                            </div>
+                            <div class="compare-slider" id="compareSlider">
+                                <div class="compare-handle">
+                                    <i class="fas fa-arrows-alt-h"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
+        </main>
+    </div>
 
-            <div style="text-align:center;margin-top:20px">
-                <button class="btn btn-primary" onclick="processImage()" data-i18n="convert">🔄 Convert & Download</button>
-                <button class="btn btn-secondary" onclick="resetImage()" data-i18n="reset">🗑️ Reset</button>
+    <!-- Toast Notification -->
+    <div class="toast" id="toast">
+        <i class="fas fa-check-circle"></i>
+        <span id="toastMessage">Success!</span>
+    </div>
+
+    <!-- Progress Modal -->
+    <div class="modal-overlay" id="progressModal" style="display:none">
+        <div class="modal modal-progress">
+            <div class="progress-header">
+                <h3 data-i18n="processing">Processing...</h3>
+                <p id="progressText">0 / 0 files</p>
             </div>
-
-            <div class="result-box" id="resultBox">
-                <p data-i18n="converted">✅ Image converted successfully!</p>
-                <p id="fileInfo" style="color:var(--text2);margin-top:10px"></p>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
             </div>
         </div>
     </div>
 
-    <div class="toast" id="toast"></div>
-
-    <script>
-        const i18n = {
-            en: { title: '🖼️ ImagePro', subtitle: 'Free Online Image Converter & Editor', uploadTitle: 'Upload Image', uploadDesc: 'Support JPG, PNG, WebP, GIF. Max 10MB.', dropText: 'Click or drag image here', editTitle: 'Edit Image', format: 'Output Format', quality: 'Quality (%)', width: 'Width (px)', height: 'Height (px)', convert: '🔄 Convert & Download', reset: '🗑️ Reset', converted: '✅ Image converted successfully!', error: 'Error processing image', selectImage: 'Please select an image' },
-            zh: { title: '🖼️ 图片转换器', subtitle: '免费在线图片转换和编辑', uploadTitle: '上传图片', uploadDesc: '支持 JPG, PNG, WebP, GIF。最大 10MB。', dropText: '点击或拖拽图片到这里', editTitle: '编辑图片', format: '输出格式', quality: '质量 (%)', width: '宽度 (像素)', height: '高度 (像素)', convert: '🔄 转换并下载', reset: '🗑️ 重置', converted: '✅ 图片转换成功！', error: '处理图片出错', selectImage: '请选择图片' },
-            es: { title: '🖼️ ImagePro', subtitle: 'Conversor y Editor de Imágenes Gratuito', uploadTitle: 'Subir Imagen', uploadDesc: 'Soporta JPG, PNG, WebP, GIF. Máx 10MB.', dropText: 'Haz clic o arrastra imagen aquí', editTitle: 'Editar Imagen', format: 'Formato de Salida', quality: 'Calidad (%)', width: 'Ancho (px)', height: 'Alto (px)', convert: '🔄 Convertir y Descargar', reset: '🗑️ Reiniciar', converted: '✅ ¡Imagen convertida con éxito!', error: 'Error al procesar imagen', selectImage: 'Por favor selecciona una imagen' },
-            ja: { title: '🖼️ 画像コンバーター', subtitle: '無料オンライン画像変換・編集', uploadTitle: '画像をアップロード', uploadDesc: 'JPG, PNG, WebP, GIF に対応。最大 10MB。', dropText: 'クリックまたは画像をドラッグ', editTitle: '画像を編集', format: '出力形式', quality: '品質 (%)', width: '幅 (px)', height: '高さ (px)', convert: '🔄 変換してダウンロード', reset: '🗑️ リセット', converted: '✅ 画像の変換に成功しました！', error: '画像処理エラー', selectImage: '画像を選択してください' },
-            ko: { title: '🖼️ 이미지 변환기', subtitle: '묣료 온라인 이미지 변환 및 편집', uploadTitle: '이미지 업로드', uploadDesc: 'JPG, PNG, WebP, GIF 지원. 최대 10MB.', dropText: '클릭 또는 이미지 드래그', editTitle: '이미지 편집', format: '출력 형식', quality: '품질 (%)', width: '너비 (px)', height: '높이 (px)', convert: '🔄 변환 및 다운로드', reset: '🗑️ 재설정', converted: '✅ 이미지 변환 성공！', error: '이미지 처리 오류', selectImage: '이미지를 선택하세요' }
-        };
-
-        let currentLang = localStorage.getItem('lang') || 'en';
-        let currentFile = null;
-        let originalImage = null;
-
-        function setLang(lang) {
-            currentLang = lang;
-            localStorage.setItem('lang', lang);
-            const flags = {en: '🇺🇸', zh: '🇨🇳', es: '🇪🇸', ja: '🇯🇵', ko: '🇰🇷'};
-            const names = {en: 'English', zh: '中文', es: 'Español', ja: '日本語', ko: '한국어'};
-            document.getElementById('flag').textContent = flags[lang];
-            document.getElementById('langName').textContent = names[lang];
-            document.querySelectorAll('[data-i18n]').forEach(el => {
-                const key = el.getAttribute('data-i18n');
-                if (i18n[lang][key]) el.textContent = i18n[lang][key];
-            });
-            document.getElementById('langDropdown').classList.remove('show');
-            document.title = i18n[lang].title;
-        }
-
-        function toggleLang() { document.getElementById('langDropdown').classList.toggle('show'); }
-        document.addEventListener('click', e => { if (!e.target.closest('.lang')) document.getElementById('langDropdown').classList.remove('show'); });
-
-        function showToast(msg) {
-            const t = document.getElementById('toast');
-            t.textContent = msg;
-            t.classList.add('show');
-            setTimeout(() => t.classList.remove('show'), 3000);
-        }
-
-        // Drag & Drop
-        const dropZone = document.getElementById('dropZone');
-        ['dragenter', 'dragover'].forEach(event => {
-            dropZone.addEventListener(event, (e) => {
-                e.preventDefault();
-                dropZone.classList.add('dragover');
-            });
-        });
-        ['dragleave', 'drop'].forEach(event => {
-            dropZone.addEventListener(event, (e) => {
-                e.preventDefault();
-                dropZone.classList.remove('dragover');
-            });
-        });
-        dropZone.addEventListener('drop', (e) => {
-            const files = e.dataTransfer.files;
-            if (files.length) handleFiles(files[0]);
-        });
-
-        function handleFile(e) {
-            if (e.target.files.length) handleFiles(e.target.files[0]);
-        }
-
-        function handleFiles(file) {
-            if (!file.type.startsWith('image/')) {
-                showToast(i18n[currentLang].error);
-                return;
-            }
-            if (file.size > 10 * 1024 * 1024) {
-                showToast('File too large (max 10MB)');
-                return;
-            }
-            currentFile = file;
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                originalImage = new Image();
-                originalImage.onload = () => {
-                    document.getElementById('preview').src = e.target.result;
-                    document.getElementById('width').placeholder = originalImage.width;
-                    document.getElementById('height').placeholder = originalImage.height;
-                    document.getElementById('editorCard').style.display = 'block';
-                };
-                originalImage.src = e.target.result;
-            };
-            reader.readAsDataURL(file);
-        }
-
-        function processImage() {
-            if (!originalImage) {
-                showToast(i18n[currentLang].selectImage);
-                return;
-            }
-
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-            
-            let width = parseInt(document.getElementById('width').value) || originalImage.width;
-            let height = parseInt(document.getElementById('height').value) || originalImage.height;
-            
-            canvas.width = width;
-            canvas.height = height;
-            ctx.drawImage(originalImage, 0, 0, width, height);
-            
-            const format = document.getElementById('format').value;
-            const quality = parseInt(document.getElementById('quality').value) / 100;
-            
-            canvas.toBlob((blob) => {
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                const ext = format.split('/')[1];
-                a.download = `converted.${ext}`;
-                a.click();
-                URL.revokeObjectURL(url);
-                
-                document.getElementById('fileInfo').textContent = `${width}×${height} | ${(blob.size/1024).toFixed(1)} KB | ${ext.toUpperCase()}`;
-                document.getElementById('resultBox').classList.add('show');
-                showToast(i18n[currentLang].converted);
-            }, format, quality);
-        }
-
-        function resetImage() {
-            currentFile = null;
-            originalImage = null;
-            document.getElementById('fileInput').value = '';
-            document.getElementById('editorCard').style.display = 'none';
-            document.getElementById('resultBox').classList.remove('show');
-            document.getElementById('width').value = '';
-            document.getElementById('height').value = '';
-        }
-
-        setLang(currentLang);
-    </script>
+    <script src="app.js"></script>
 </body>
 </html>
