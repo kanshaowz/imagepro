@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="page-title">ImagePro - Free Online Image Converter</title>
+    <meta name="description" content="Free online image converter. Convert JPG, PNG, WebP, GIF. Resize, compress, and edit images in your browser.">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root { --bg: #0f172a; --bg2: #1e293b; --card: #334155; --text: #f8fafc; --text2: #94a3b8; --accent: #3b82f6; --success: #10b981; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+        .lang { position: fixed; top: 15px; right: 15px; z-index: 1000; }
+        .lang-btn { background: var(--card); border: 1px solid rgba(255,255,255,0.1); color: var(--text); padding: 8px 14px; border-radius: 20px; cursor: pointer; font-size: 0.85rem; }
+        .lang-dropdown { position: absolute; top: 100%; right: 0; margin-top: 8px; background: var(--card); border-radius: 12px; display: none; min-width: 140px; overflow: hidden; }
+        .lang-dropdown.show { display: block; }
+        .lang-option { padding: 10px 14px; cursor: pointer; font-size: 0.9rem; }
+        .lang-option:hover { background: var(--bg2); }
+        .header { text-align: center; padding: 40px 20px; background: var(--bg2); }
+        .header h1 { font-size: 2.5rem; background: linear-gradient(135deg, var(--accent), #8b5cf6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 10px; }
+        .header p { color: var(--text2); }
+        .container { max-width: 900px; margin: 0 auto; padding: 30px 20px; }
+        .tool-card { background: var(--bg2); border-radius: 16px; padding: 30px; margin-bottom: 20px; }
+        .tool-title { font-size: 1.5rem; margin-bottom: 10px; }
+        .tool-desc { color: var(--text2); margin-bottom: 25px; }
+        .upload-area { border: 3px dashed rgba(255,255,255,0.2); border-radius: 16px; padding: 60px 20px; text-align: center; cursor: pointer; transition: all 0.3s; }
+        .upload-area:hover { border-color: var(--accent); background: rgba(59,130,246,0.05); }
+        .upload-area.dragover { border-color: var(--accent); background: rgba(59,130,246,0.1); }
+        .btn { padding: 12px 24px; border: none; border-radius: 10px; cursor: pointer; font-weight: 600; transition: all 0.3s; margin: 5px; }
+        .btn-primary { background: var(--accent); color: white; }
+        .btn-secondary { background: var(--card); color: var(--text); border: 2px solid rgba(255,255,255,0.1); }
+        .input-group { margin: 15px 0; }
+        .input-label { display: block; margin-bottom: 8px; color: var(--text2); font-size: 0.9rem; }
+        .input-field { width: 100%; background: var(--card); border: 2px solid transparent; border-radius: 10px; padding: 12px; color: var(--text); }
+        .input-field:focus { outline: none; border-color: var(--accent); }
+        select.input-field { cursor: pointer; }
+        .preview-img { max-width: 100%; max-height: 400px; border-radius: 10px; margin: 20px 0; }
+        .result-box { background: var(--card); padding: 20px; border-radius: 12px; margin-top: 20px; display: none; }
+        .result-box.show { display: block; }
+        .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--success); color: white; padding: 12px 24px; border-radius: 25px; opacity: 0; transition: all 0.3s; z-index: 1000; }
+        .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        @media (max-width: 600px) { .grid-2 { grid-template-columns: 1fr; } .header h1 { font-size: 1.8rem; } }
+    </style>
+</head>
+<body>
+    <div class="lang">
+        <button class="lang-btn" onclick="toggleLang()"><span id="flag">🇺🇸</span> <span id="langName">English</span> ▼</button>
+        <div class="lang-dropdown" id="langDropdown">
+            <div class="lang-option" onclick="setLang('en')">🇺🇸 English</div>
+            <div class="lang-option" onclick="setLang('zh')">🇨🇳 中文</div>
+            <div class="lang-option" onclick="setLang('es')">🇪🇸 Español</div>
+            <div class="lang-option" onclick="setLang('ja')">🇯🇵 日本語</div>
+            <div class="lang-option" onclick="setLang('ko')">🇰🇷 한국어</div>
+        </div>
+    </div>
+
+    <header class="header">
+        <h1 data-i18n="title">🖼️ ImagePro</h1>
+        <p data-i18n="subtitle">Free Online Image Converter & Editor</p>
+    </header>
+
+    <div class="container">
+        <!-- Upload -->
+        <div class="tool-card">
+            <h2 class="tool-title" data-i18n="uploadTitle">Upload Image</h2>
+            <p class="tool-desc" data-i18n="uploadDesc">Support JPG, PNG, WebP, GIF. Max 10MB.</p>
+            
+            <div class="upload-area" id="dropZone" onclick="document.getElementById('fileInput').click()">
+                <p style="font-size: 3rem">📤</p>
+                <p data-i18n="dropText">Click or drag image here</p>
+                <input type="file" id="fileInput" accept="image/*" style="display:none" onchange="handleFile(event)">
+            </div>
+        </div>
+
+        <!-- Editor -->
+        <div class="tool-card" id="editorCard" style="display:none">
+            <h2 class="tool-title" data-i18n="editTitle">Edit Image</h2>
+            
+            <div style="text-align:center">
+                <img id="preview" class="preview-img">
+            </div>
+
+            <div class="grid-2">
+                <div class="input-group">
+                    <label class="input-label" data-i18n="format">Output Format</label>
+                    <select class="input-field" id="format">
+                        <option value="image/jpeg">JPG</option>
+                        <option value="image/png">PNG</option>
+                        <option value="image/webp">WebP</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label class="input-label" data-i18n="quality">Quality (%)</label>
+                    <input type="number" class="input-field" id="quality" value="90" min="1" max="100">
+                </div>
+            </div>
+
+            <div class="grid-2">
+                <div class="input-group">
+                    <label class="input-label" data-i18n="width">Width (px)</label>
+                    <input type="number" class="input-field" id="width" placeholder="Auto">
+                </div>
+
+                <div class="input-group">
+                    <label class="input-label" data-i18n="height">Height (px)</label>
+                    <input type="number" class="input-field" id="height" placeholder="Auto">
+                </div>
+            </div>
+
+            <div style="text-align:center;margin-top:20px">
+                <button class="btn btn-primary" onclick="processImage()" data-i18n="convert">🔄 Convert & Download</button>
+                <button class="btn btn-secondary" onclick="resetImage()" data-i18n="reset">🗑️ Reset</button>
+            </div>
+
+            <div class="result-box" id="resultBox">
+                <p data-i18n="converted">✅ Image converted successfully!</p>
+                <p id="fileInfo" style="color:var(--text2);margin-top:10px"></p>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        const i18n = {
+            en: { title: '🖼️ ImagePro', subtitle: 'Free Online Image Converter & Editor', uploadTitle: 'Upload Image', uploadDesc: 'Support JPG, PNG, WebP, GIF. Max 10MB.', dropText: 'Click or drag image here', editTitle: 'Edit Image', format: 'Output Format', quality: 'Quality (%)', width: 'Width (px)', height: 'Height (px)', convert: '🔄 Convert & Download', reset: '🗑️ Reset', converted: '✅ Image converted successfully!', error: 'Error processing image', selectImage: 'Please select an image' },
+            zh: { title: '🖼️ 图片转换器', subtitle: '免费在线图片转换和编辑', uploadTitle: '上传图片', uploadDesc: '支持 JPG, PNG, WebP, GIF。最大 10MB。', dropText: '点击或拖拽图片到这里', editTitle: '编辑图片', format: '输出格式', quality: '质量 (%)', width: '宽度 (像素)', height: '高度 (像素)', convert: '🔄 转换并下载', reset: '🗑️ 重置', converted: '✅ 图片转换成功！', error: '处理图片出错', selectImage: '请选择图片' },
+            es: { title: '🖼️ ImagePro', subtitle: 'Conversor y Editor de Imágenes Gratuito', uploadTitle: 'Subir Imagen', uploadDesc: 'Soporta JPG, PNG, WebP, GIF. Máx 10MB.', dropText: 'Haz clic o arrastra imagen aquí', editTitle: 'Editar Imagen', format: 'Formato de Salida', quality: 'Calidad (%)', width: 'Ancho (px)', height: 'Alto (px)', convert: '🔄 Convertir y Descargar', reset: '🗑️ Reiniciar', converted: '✅ ¡Imagen convertida con éxito!', error: 'Error al procesar imagen', selectImage: 'Por favor selecciona una imagen' },
+            ja: { title: '🖼️ 画像コンバーター', subtitle: '無料オンライン画像変換・編集', uploadTitle: '画像をアップロード', uploadDesc: 'JPG, PNG, WebP, GIF に対応。最大 10MB。', dropText: 'クリックまたは画像をドラッグ', editTitle: '画像を編集', format: '出力形式', quality: '品質 (%)', width: '幅 (px)', height: '高さ (px)', convert: '🔄 変換してダウンロード', reset: '🗑️ リセット', converted: '✅ 画像の変換に成功しました！', error: '画像処理エラー', selectImage: '画像を選択してください' },
+            ko: { title: '🖼️ 이미지 변환기', subtitle: '묣료 온라인 이미지 변환 및 편집', uploadTitle: '이미지 업로드', uploadDesc: 'JPG, PNG, WebP, GIF 지원. 최대 10MB.', dropText: '클릭 또는 이미지 드래그', editTitle: '이미지 편집', format: '출력 형식', quality: '품질 (%)', width: '너비 (px)', height: '높이 (px)', convert: '🔄 변환 및 다운로드', reset: '🗑️ 재설정', converted: '✅ 이미지 변환 성공！', error: '이미지 처리 오류', selectImage: '이미지를 선택하세요' }
+        };
+
+        let currentLang = localStorage.getItem('lang') || 'en';
+        let currentFile = null;
+        let originalImage = null;
+
+        function setLang(lang) {
+            currentLang = lang;
+            localStorage.setItem('lang', lang);
+            const flags = {en: '🇺🇸', zh: '🇨🇳', es: '🇪🇸', ja: '🇯🇵', ko: '🇰🇷'};
+            const names = {en: 'English', zh: '中文', es: 'Español', ja: '日本語', ko: '한국어'};
+            document.getElementById('flag').textContent = flags[lang];
+            document.getElementById('langName').textContent = names[lang];
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (i18n[lang][key]) el.textContent = i18n[lang][key];
+            });
+            document.getElementById('langDropdown').classList.remove('show');
+            document.title = i18n[lang].title;
+        }
+
+        function toggleLang() { document.getElementById('langDropdown').classList.toggle('show'); }
+        document.addEventListener('click', e => { if (!e.target.closest('.lang')) document.getElementById('langDropdown').classList.remove('show'); });
+
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 3000);
+        }
+
+        // Drag & Drop
+        const dropZone = document.getElementById('dropZone');
+        ['dragenter', 'dragover'].forEach(event => {
+            dropZone.addEventListener(event, (e) => {
+                e.preventDefault();
+                dropZone.classList.add('dragover');
+            });
+        });
+        ['dragleave', 'drop'].forEach(event => {
+            dropZone.addEventListener(event, (e) => {
+                e.preventDefault();
+                dropZone.classList.remove('dragover');
+            });
+        });
+        dropZone.addEventListener('drop', (e) => {
+            const files = e.dataTransfer.files;
+            if (files.length) handleFiles(files[0]);
+        });
+
+        function handleFile(e) {
+            if (e.target.files.length) handleFiles(e.target.files[0]);
+        }
+
+        function handleFiles(file) {
+            if (!file.type.startsWith('image/')) {
+                showToast(i18n[currentLang].error);
+                return;
+            }
+            if (file.size > 10 * 1024 * 1024) {
+                showToast('File too large (max 10MB)');
+                return;
+            }
+            currentFile = file;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                originalImage = new Image();
+                originalImage.onload = () => {
+                    document.getElementById('preview').src = e.target.result;
+                    document.getElementById('width').placeholder = originalImage.width;
+                    document.getElementById('height').placeholder = originalImage.height;
+                    document.getElementById('editorCard').style.display = 'block';
+                };
+                originalImage.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function processImage() {
+            if (!originalImage) {
+                showToast(i18n[currentLang].selectImage);
+                return;
+            }
+
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            let width = parseInt(document.getElementById('width').value) || originalImage.width;
+            let height = parseInt(document.getElementById('height').value) || originalImage.height;
+            
+            canvas.width = width;
+            canvas.height = height;
+            ctx.drawImage(originalImage, 0, 0, width, height);
+            
+            const format = document.getElementById('format').value;
+            const quality = parseInt(document.getElementById('quality').value) / 100;
+            
+            canvas.toBlob((blob) => {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                const ext = format.split('/')[1];
+                a.download = `converted.${ext}`;
+                a.click();
+                URL.revokeObjectURL(url);
+                
+                document.getElementById('fileInfo').textContent = `${width}×${height} | ${(blob.size/1024).toFixed(1)} KB | ${ext.toUpperCase()}`;
+                document.getElementById('resultBox').classList.add('show');
+                showToast(i18n[currentLang].converted);
+            }, format, quality);
+        }
+
+        function resetImage() {
+            currentFile = null;
+            originalImage = null;
+            document.getElementById('fileInput').value = '';
+            document.getElementById('editorCard').style.display = 'none';
+            document.getElementById('resultBox').classList.remove('show');
+            document.getElementById('width').value = '';
+            document.getElementById('height').value = '';
+        }
+
+        setLang(currentLang);
+    </script>
+</body>
+</html>
